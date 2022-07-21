@@ -1,7 +1,7 @@
-export function GetClosestBone(skinnedMesh, bone) {
+export function GetClosestBone(mesh, bone) {
 
   const bonePosition = bone.position;
-  const bones = skinnedMesh.children[0].children;
+  const bones = mesh.children[0].children;
   let minDistance = Number.MAX_VALUE;
   let closestBone;
   let distance;

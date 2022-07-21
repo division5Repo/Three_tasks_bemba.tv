@@ -1,56 +1,86 @@
 import * as THREE from "three";
-import { GetClosestBone } from "./bonesTask.js";
+import { GetClosestBone } from "./task3Functions.js";
 import { OrbitControls } from "./jsm/controls/OrbitControls.js";
-import {FBXLoader} from "./jsm/loaders/FBXLoader.js"
+import {FBXLoader} from "./jsm/loaders/FBXLoader.js";
 
-let container, camera, scene, renderer, mesh;
+let container, camera, scene, renderer;
 
-await init();
+setupScene();
+setupRenderer();
+await loadMeshes();
+setupAnimationLoop();
+activateCameraControls();
+handleWindowResize();
 
-async function init() {
-  container = document.getElementById("container");
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x8fbcd4);
-  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
-  camera.position.z = 1000;
-  scene.add(camera);
-  scene.add(new THREE.AmbientLight(0x8fbcd2, 0.35));
-  const pointLight = new THREE.PointLight(0xffffff, 1);
-  camera.add(pointLight);
-
-  const loader = new FBXLoader()
-  let firstObject = await loader.loadAsync('./xbot.fbx');
-  firstObject.position.x = -200
-  firstObject.position.y = 0
-  firstObject.position.z = 0
-  scene.add(firstObject);
-
-  let secondObject = await loader.loadAsync('./xbot.fbx');
-  secondObject.position.x = 200
-  secondObject.position.y = 0
-  secondObject.position.z = 0
-  scene.add(secondObject);
-
-  console.log('Closest bone of mesh ',secondObject, " to the bone ",firstObject.children[0], 'is ', GetClosestBone(secondObject,firstObject.children[0]))
-
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
+function setupScene(){
   
-  renderer.setAnimationLoop(function () {
-    renderer.render(scene, camera);
-  });
+  container = document.getElementById( 'container' );
 
-  container.appendChild(renderer.domElement);
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color( 0x8FBCD4 );
 
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableZoom = false;
+  camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 20 );
+  camera.position.z = 10;
 
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+  scene.add( camera );
+  scene.add( new THREE.AmbientLight( 0x8FBCD2, 0.35 ) );
+
+  const pointLight = new THREE.PointLight( 0xffffff, 1 );
+  camera.add( pointLight );
 }
 
+async function loadMeshes(){
 
+  const loader = new FBXLoader();
+  let firstObject = await loader.loadAsync('./assets/xbot.fbx');
+  firstObject.scale.set(0.02, 0.02, 0.02);
+  firstObject.position.x = -2;
+  firstObject.position.y = 0;
+  firstObject.position.z = 0;
+  scene.add(firstObject);
+
+  let secondObject = await loader.loadAsync('./assets/xbot.fbx');
+  secondObject.scale.set(0.02, 0.02, 0.02);
+  secondObject.position.x = 2;
+  secondObject.position.y = 0;
+  secondObject.position.z = 0;
+  scene.add(secondObject);
+
+  const indexOBoneToTest = 1; //as an example we are checking bone with index 1
+  const closestBoneObj = GetClosestBone(secondObject,firstObject.children[indexOBoneToTest]);
+  console.log('Closest bone of mesh ',secondObject, " to the bone ",firstObject.children[indexOBoneToTest], 'is ', closestBoneObj);
+}
+
+function setupRenderer(){
+
+  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setSize( window.innerWidth, window.innerHeight );
+ 
+}
+
+function setupAnimationLoop(){
+
+  renderer.setAnimationLoop( function () {
+
+    renderer.render( scene, camera );
+  } );
+
+  container.appendChild( renderer.domElement );
+}
+
+function activateCameraControls(){
+
+  const controls = new OrbitControls( camera, renderer.domElement );
+  controls.enableZoom = true;
+}
+
+function handleWindowResize(){
+
+  window.addEventListener( 'resize', ()=>{
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+  } );
+}
