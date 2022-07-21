@@ -17,7 +17,6 @@ async function init() {
   scene.add(new THREE.AmbientLight(0x8fbcd2, 0.35));
   const pointLight = new THREE.PointLight(0xffffff, 1);
   camera.add(pointLight);
-  let firstmesh = null;
 
   const loader = new FBXLoader()
   let firstObject = await loader.loadAsync('./xbot.fbx');
