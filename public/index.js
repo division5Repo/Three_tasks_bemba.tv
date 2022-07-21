@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from './jsm/controls/OrbitControls.js'
-import { createGeometry, onWindowResize, getPositionOfVertex } from './helpers.js';
+import { createGeometry, getPositionOfVertex } from './task1Functions.js';
 
   let container, camera, scene, renderer, mesh;
 
@@ -75,7 +75,11 @@ import { createGeometry, onWindowResize, getPositionOfVertex } from './helpers.j
     const controls = new OrbitControls( camera, renderer.domElement );
     controls.enableZoom = false;
 
-    window.addEventListener( 'resize', onWindowResize );
+    window.addEventListener( 'resize', ()=>{
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+    } );
 
   }
 
