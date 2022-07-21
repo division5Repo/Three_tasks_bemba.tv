@@ -1,13 +1,13 @@
 import * as THREE from "three";
-import { Loader } from "three";
+import { GetClosestBone } from "./bonesTask.js";
 import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 import {FBXLoader} from "./jsm/loaders/FBXLoader.js"
 
 let container, camera, scene, renderer, mesh;
 
-init();
+await init();
 
-function init() {
+async function init() {
   container = document.getElementById("container");
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x8fbcd4);
@@ -17,34 +17,27 @@ function init() {
   scene.add(new THREE.AmbientLight(0x8fbcd2, 0.35));
   const pointLight = new THREE.PointLight(0xffffff, 1);
   camera.add(pointLight);
-
+  let firstmesh = null;
 
   const loader = new FBXLoader()
-  loader.load('./xbot.fbx', function (firstObject) {
-    firstObject.position.x = -200
-    firstObject.position.y = 0
-    firstObject.position.z = 0
+  let firstObject = await loader.loadAsync('./xbot.fbx');
+  firstObject.position.x = -200
+  firstObject.position.y = 0
+  firstObject.position.z = 0
   scene.add(firstObject);
-});
 
-let secondMesh ;
-
- loader.load('./xbot.fbx', function (secondObject) {
+  let secondObject = await loader.loadAsync('./xbot.fbx');
   secondObject.position.x = 200
   secondObject.position.y = 0
   secondObject.position.z = 0
-  secondMesh == secondObject
-scene.add(secondObject);
-});
+  scene.add(secondObject);
 
-// GetClosestBone(firstObject.children[1]){
-
-// }
+  console.log('Closest bone of mesh ',secondObject, " to the bone ",firstObject.children[0], 'is ', GetClosestBone(secondObject,firstObject.children[0]))
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-
+  
   renderer.setAnimationLoop(function () {
     renderer.render(scene, camera);
   });
@@ -61,21 +54,4 @@ scene.add(secondObject);
   });
 }
 
-function GetClosestBone(skinnedMesh, bone) {
-  const bonePosition = bone.position;
-  const bones = skinnedMesh.skeleton.bones;
-  let minDistance = Number.MAX_VALUE;
-
-  let closestBone;
-  let distance;
-  for (let i = 0; i < bones.length; i++) {
-    distance = bonePosition.distanceTo(bones[i]);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestBone = bones[i];
-    }
-  }
-
-  return closestBone;
-}
 
