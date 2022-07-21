@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from './jsm/controls/OrbitControls.js'
-import { createGeometry, getPositionOfVertex } from './task1Functions.js';
+import { checkFacing } from './task2Functions.js';
 
   let container, camera, scene, renderer, mesh;
 
@@ -22,52 +22,38 @@ import { createGeometry, getPositionOfVertex } from './task1Functions.js';
     const pointLight = new THREE.PointLight( 0xffffff, 1 );
     camera.add( pointLight );
 
-    const geometry = createGeometry();
+    let axesHelper = new THREE.AxesHelper(2);
 
-    const material = new THREE.MeshPhongMaterial( {
-      color: 0xff0011,
-      flatShading: true
-    } );
+    const firstCube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false, transparent: true, opacity: 1 }));
+    firstCube.add(axesHelper);
+    firstCube.position.set(-3, 0, 0);
+    scene.add(firstCube);
+    
+    const secondCube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false, transparent: true, opacity: 1 }));
+    axesHelper = new THREE.AxesHelper(2);
+    secondCube.add(axesHelper);
+    secondCube.position.set(3, 0, 0);
+    scene.add(secondCube);
 
-    mesh = new THREE.Mesh( geometry, material );
-    scene.add( mesh );
+    let isFacing = false;
+    let degreeRange = 5;
+
+    let firstForward = new THREE.Vector3();
+    let secondForward = new THREE.Vector3();
 
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
-    
-    let inputIndex = document.getElementById('index');
-    let indexOfVertex = 0;
 
-    document.getElementById("btn").addEventListener("click", ()=>{ 
-      
-      if(inputIndex.value !== ''){
-        indexOfVertex = inputIndex.value;
-      }
-
-      getPositionOfVertex(mesh, indexOfVertex)
-    });
-
-    let value = 0.0;
-    let reverse  = false;
     renderer.setAnimationLoop( function () {
       
-      if(reverse){
-        value -= 0.001;
-      }
-      else{
-        value += 0.001;
-      }
-
       renderer.render( scene, camera );
-      mesh.morphTargetInfluences[ 0 ] = value;
-      
-      if(value > 2.0){
-        reverse = true
-      }
-      else if(value < 0.0){
-        reverse = false
-      }
+      firstCube.rotateY(-0.02);
+      secondCube.rotateY(0.02);
+
+      isFacing = checkFacing(firstCube, secondCube, firstForward, secondForward, degreeRange);
+
+      if (isFacing) console.log(isFacing);
     } );
 
     container.appendChild( renderer.domElement );
