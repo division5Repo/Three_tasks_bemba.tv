@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+
 export function checkFacing(firstObject, secondObject, firstForward, secondForward, range = 0) {
 
   // getting Forward Directions 
@@ -14,8 +15,11 @@ export function checkFacing(firstObject, secondObject, firstForward, secondForwa
   let secondDegree = THREE.MathUtils.radToDeg(secondForward.angleTo(secondFaceDirection));
 
   // checking if they are both facing each other
-  // since we have both degrees, it can be done for each of them separately
   if (firstDegree < 0 + range && secondDegree < 0 + range) {
+    
     return true;
-  } else return false;
+  } else {
+    
+    return false;
+  }
 }
