@@ -3,13 +3,15 @@ import { GetClosestBone } from "./task3Functions.js";
 import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 import {FBXLoader} from "./jsm/loaders/FBXLoader.js";
 
-let container, camera, scene, renderer;
+let container, camera, scene, renderer, firstObject, secondObject, closestBoneObj,
+indexOBoneToTest = 1; //as an example we are checking bone with index 1
 
 setupScene();
 setupRenderer();
 await loadMeshes();
 setupAnimationLoop();
 activateCameraControls();
+activateCharacterControls();
 handleWindowResize();
 
 function setupScene(){
@@ -32,22 +34,21 @@ function setupScene(){
 async function loadMeshes(){
 
   const loader = new FBXLoader();
-  let firstObject = await loader.loadAsync('./assets/xbot.fbx');
+  firstObject = await loader.loadAsync('./assets/xbot.fbx');
   firstObject.scale.set(0.02, 0.02, 0.02);
   firstObject.position.x = -2;
   firstObject.position.y = 0;
   firstObject.position.z = 0;
   scene.add(firstObject);
 
-  let secondObject = await loader.loadAsync('./assets/xbot.fbx');
+  secondObject = await loader.loadAsync('./assets/xbot.fbx');
   secondObject.scale.set(0.02, 0.02, 0.02);
   secondObject.position.x = 2;
   secondObject.position.y = 0;
   secondObject.position.z = 0;
   scene.add(secondObject);
 
-  const indexOBoneToTest = 1; //as an example we are checking bone with index 1
-  const closestBoneObj = GetClosestBone(secondObject,firstObject.children[indexOBoneToTest]);
+  closestBoneObj = GetClosestBone(secondObject,firstObject.children[indexOBoneToTest]);
   console.log('Closest bone of mesh ',secondObject, " to the bone ",firstObject.children[indexOBoneToTest], 'is ', closestBoneObj);
 }
 
@@ -73,6 +74,37 @@ function activateCameraControls(){
 
   const controls = new OrbitControls( camera, renderer.domElement );
   controls.enableZoom = true;
+}
+
+function activateCharacterControls(){
+  
+  window.addEventListener('keydown',(evt)=>{
+    
+    switch (evt.key) {
+      case 'w': // move forward
+      firstObject.position.z -= 0.05;
+      break;
+      case 'a': // move back
+      firstObject.position.x -= 0.05;
+      break;
+      case 's': // move left
+      firstObject.position.z += 0.05;
+      break;
+      case 'd': // move right
+      firstObject.position.x += 0.05;
+      break;
+      case 'e': // rotate clockwise
+      firstObject.rotation.y += 0.05;
+      break;
+      case 'q': // rotate counerclockwise
+      firstObject.rotation.y -= 0.05;
+      break;
+      default:
+        break;
+    }
+    
+    console.log('Closest bone of mesh ',secondObject, " to the bone ",firstObject.children[indexOBoneToTest], 'is ', closestBoneObj);
+  });
 }
 
 function handleWindowResize(){
