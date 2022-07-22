@@ -4,7 +4,7 @@ import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 import {FBXLoader} from "./jsm/loaders/FBXLoader.js";
 
 let container, camera, scene, renderer, firstObject, secondObject, closestBoneObj,
-indexOBoneToTest = 1; //as an example we are checking bone with index 1
+indexOBoneToTest = 3; //as an example we are checking bone with index 3 => right leg
 
 setupScene();
 setupRenderer();
@@ -34,22 +34,24 @@ function setupScene(){
 async function loadMeshes(){
 
   const loader = new FBXLoader();
-  firstObject = await loader.loadAsync('./assets/xbot.fbx');
+  firstObject = await loader.loadAsync('./assets/mod.fbx');
   firstObject.scale.set(0.02, 0.02, 0.02);
   firstObject.position.x = -2;
   firstObject.position.y = 0;
   firstObject.position.z = 0;
   scene.add(firstObject);
 
-  secondObject = await loader.loadAsync('./assets/xbot.fbx');
+  secondObject = await loader.loadAsync('./assets/mod.fbx');
   secondObject.scale.set(0.02, 0.02, 0.02);
   secondObject.position.x = 2;
   secondObject.position.y = 0;
   secondObject.position.z = 0;
   scene.add(secondObject);
 
-  closestBoneObj = GetClosestBone(secondObject,firstObject.children[indexOBoneToTest]);
-  console.log('Closest bone of mesh ',secondObject, " to the bone ",firstObject.children[indexOBoneToTest], 'is ', closestBoneObj);
+  closestBoneObj = GetClosestBone(secondObject, firstObject.children[2].children[indexOBoneToTest]);
+  console.log('Mesh searched into-> ', secondObject);
+  console.log('Bone to measure distance from', firstObject.children[2].children[indexOBoneToTest]);
+  console.log('Initial closest bone ', closestBoneObj);
 }
 
 function setupRenderer(){
@@ -100,10 +102,11 @@ function activateCharacterControls(){
       firstObject.rotation.y -= 0.05;
       break;
       default:
-        break;
+      break;
     }
-    
-    console.log('Closest bone of mesh ',secondObject, " to the bone ",firstObject.children[indexOBoneToTest], 'is ', closestBoneObj);
+
+    closestBoneObj = GetClosestBone(secondObject, firstObject.children[2].children[indexOBoneToTest]);
+    console.log('Closest bone stationary model to the ',firstObject.children[2].children[indexOBoneToTest].name, ' bone of moving model is ', closestBoneObj.name);
   });
 }
 
